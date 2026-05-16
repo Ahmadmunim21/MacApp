@@ -1,0 +1,33 @@
+name: CI/CD Automasi Docker ASP.NET Core
+
+# 1. TRIGGER: Pipeline ini akan berjalan setiap kali anda push kod ke branch 'main'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  bina-dan-uji:
+    # 2. ENVIRONMENT: Sediakan pelayan Linux Ubuntu maya di dalam cloud GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+    # Langkah A: Ambil kod sumber anda dari GitHub masukkan ke pelayan maya
+    - name: Ambil Kod Sumber (Checkout)
+      uses: actions/checkout@v4
+
+    # Langkah B: Hidupkan enjin Docker di dalam pelayan GitHub dan bina imej
+    - name: Bina Imej Docker (Docker Build)
+      run: |
+        echo "Memulakan proses binaan automatik menggunakan Docker..."
+        docker build -t my-mac-web-app:latest .
+        echo "Binaan selesai dengan jayanya!"
+
+    # Langkah C: Jalankan ujian ringkas untuk pastikan kontena boleh berfungsi
+    - name: Uji Kontena Docker
+      run: |
+        docker run -d -p 8080:8080 --name uji-sistem my-mac-web-app:latest
+        sleep 5
+        # Menyemak jika kontena hidup dan respons dengan kod HTTP 200 (Berjaya)
+        curl -I http://localhost:8080
